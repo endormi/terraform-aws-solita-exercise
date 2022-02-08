@@ -11,10 +11,7 @@ resource "aws_security_group" "exercise_ec2_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    # This is very bad practice and very insecure
-    # You should use a specific IP or range of IPs
-    # A VPN for example
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = "${var.ssh_sg_cidr_block}"
   }
 
   ingress {
@@ -50,8 +47,8 @@ resource "aws_security_group" "exercise_ec2_sg" {
   }
 
   tags = {
-    Name    = "solita_exercise_ec2_sg"
-    Project = "solita_exercise_flask_application"
+    Name    = "${var.name}_ec2_sg"
+    Project = "${var.name}_${var.application}"
   }
 }
 
@@ -78,7 +75,7 @@ resource "aws_security_group" "exercise_db_sg" {
   }
 
   tags = {
-    Name    = "solita_exercise_db_sg"
-    Project = "solita_exercise_flask_application"
+    Name    = "${var.name}_db_sg"
+    Project = "${var.name}_${var.application}"
   }
 }

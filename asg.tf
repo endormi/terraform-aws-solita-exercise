@@ -2,9 +2,9 @@ resource "aws_autoscaling_group" "exercise_asg" {
   depends_on           = [aws_launch_configuration.alc]
 
   name                 = "exercise-asg"
-  max_size             = 4
-  min_size             = 2
-  desired_capacity     = 2
+  max_size             = "${var.asg_max_size}"
+  min_size             = "${var.asg_min_size}"
+  desired_capacity     = "${var.asg_desired_capacity}"
   health_check_type    = "ELB"
   force_delete         = true
   launch_configuration = aws_launch_configuration.alc.name
@@ -13,7 +13,7 @@ resource "aws_autoscaling_group" "exercise_asg" {
 
   tag {
     key                 = "Name"
-    value               = "solita_exercise_ec2"
+    value               = "${var.name}_ec2"
     propagate_at_launch = true
   }
 
@@ -24,8 +24,8 @@ resource "aws_autoscaling_group" "exercise_asg" {
 
 resource "aws_launch_configuration" "alc" {
   name                        = "exercise-alc"
-  image_id                    = "ami-00dff27dd99d89d89"
-  instance_type               = "t3.micro"
+  image_id                    = "${var.ami}"
+  instance_type               = "${var.instance_type}"
   security_groups             = [aws_security_group.exercise_ec2_sg.id]
   associate_public_ip_address = true
   user_data                   = data.template_file.userdata.rendered

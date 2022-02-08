@@ -16,8 +16,8 @@ resource "aws_cloudwatch_metric_alarm" "cpu_alarm_up" {
   alarm_actions     = [aws_autoscaling_policy.exercise_cpu_policy.arn]
 
   tags = {
-    Name    = "solita_exercise_cloudwatch_metric_cpu_alarm"
-    Project = "solita_exercise_flask_application"
+    Name    = "${var.name}_cloudwatch_metric_cpu_alarm"
+    Project = "${var.name}_${var.application}"
   }
 }
 

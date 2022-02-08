@@ -13,14 +13,14 @@ resource "aws_db_subnet_group" "db_subnet_group" {
 
 resource "aws_db_instance" "rds_db" {
   identifier             = "exercise-rds-db"
-  allocated_storage      = 10
-  engine                 = "mysql"
-  engine_version         = "8.0"
-  instance_class         = "db.t3.micro"
+  allocated_storage      = "${var.db_allocated_storage}"
+  engine                 = "${var.engine}"
+  engine_version         = "${var.engine_version}"
+  instance_class         = "${var.instance_class}"
   name                   = "exercise"
   username               = "root"
   password               = random_password.exercise_password.result
-  parameter_group_name   = "default.mysql8.0"
+  parameter_group_name   = "${var.parameter_group_name}"
   skip_final_snapshot    = true
   publicly_accessible    = false
   storage_encrypted      = true
@@ -29,8 +29,8 @@ resource "aws_db_instance" "rds_db" {
   multi_az               = true
 
   tags = {
-    Name      = "solita_exercise_db"
-    Project   = "solita_exercise_flask_application"
+    Name      = "${var.name}_db"
+    Project   = "${var.name}_${var.application}"
     Encrypted = true
   }
 }

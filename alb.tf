@@ -14,8 +14,8 @@ resource "aws_lb" "exercise_alb" {
   # }
 
   tags = {
-    Name    = "solita_exercise_alb"
-    Project = "solita_exercise_flask_application"
+    Name    = "${var.name}_alb"
+    Project = "${var.name}_${var.application}"
   }
 }
 
@@ -30,8 +30,8 @@ resource "aws_lb_listener" "exercise_alb_listener_http" {
   }
 
   tags = {
-    Name    = "solita_exercise_alb_listener_http"
-    Project = "solita_exercise_flask_application"
+    Name    = "${var.name}_alb_listener_http"
+    Project = "${var.name}_${var.application}"
   }
 }
 
@@ -45,12 +45,12 @@ resource "aws_lb_target_group" "exercise_alb_tg" {
     path              = "/health"
     port              = 3000
     matcher           = "200"
-    interval          = 10
-    healthy_threshold = 2
+    interval          = "${var.health_check_interval}"
+    healthy_threshold = "${var.health_check_healthy_threshold}"
   }
 
   tags = {
-    Name    = "solita_exercise_alb_tg"
-    Project = "solita_exercise_flask_application"
+    Name    = "${var.name}_alb_tg"
+    Project = "${var.name}_${var.application}"
   }
 }

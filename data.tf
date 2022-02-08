@@ -1,10 +1,10 @@
 data "aws_subnet" "pub_subnet" {
-  count = "${length(local.pub_subnet_cidr_block)}"
+  count = "${length(var.pub_subnet_cidr_block)}"
   id    = "${element(aws_subnet.pub_subnet.*.id, count.index)}"
 }
 
 data "aws_subnet" "priv_subnet" {
-  count = "${length(local.priv_subnet_cidr_block)}"
+  count = "${length(var.priv_subnet_cidr_block)}"
   id    = "${element(aws_subnet.priv_subnet.*.id, count.index)}"
 }
 
