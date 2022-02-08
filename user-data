@@ -1,0 +1,161 @@
+#!/bin/bash
+
+## User configurable variables
+host="${db_host}"
+user="${db_user}"
+password="${db_password}"
+db="${db_name}"
+## User configurable variables end
+
+# picking up db host from file if exists
+if [ -f /opt/db.ap ]; then
+    host=$(cat /opt/db.ap | xargs)
+fi
+
+# update the system
+yum update -y
+# install dependencies
+yum install -y python2 python2-pip mariadb
+pip install flask pymysql
+
+#add user
+adduser -M awsexercise
+usermod -L awsexercise
+
+# install simple standalone web server
+mkdir -p /opt/pyweb
+cat <<'EOF' > /opt/pyweb/web.py
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from flask import Flask
+from flask import Response
+from pypassword import *
+import pymysql
+
+app = Flask(__name__)
+
+class Database:
+    def __init__(self):
+        self.con = pymysql.connect(host=dbhost, user=dbuser, password=dbpassword, db=dbname, cursorclass=pymysql.cursors.
+                                   DictCursor)
+        self.cur = self.con.cursor()
+
+    def get_content(self):
+        self.cur.execute("SELECT helloworld FROM content LIMIT 50")
+        result = self.cur.fetchall()
+
+        return result
+
+    def get_health(self):
+        self.cur.execute("SELECT health_check FROM health LIMIT 1")
+        result = self.cur.fetchall()
+
+        return result
+
+@app.route('/health')
+def healthcheck():
+
+    def db_query():
+        db = Database()
+        healthstatus = db.get_health()
+
+        return healthstatus
+
+    return db_query()[0].itervalues().next()
+
+@app.route("/")
+def hello():
+    def db_query():
+        db = Database()
+        content = db.get_content()
+
+        return content
+
+    return db_query()[0].itervalues().next()
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=3000)
+EOF
+chmod 774 /opt/pyweb/web.py
+chown awsexercise:awsexercise /opt/pyweb/web.py
+
+cat <<'EOF' > /etc/systemd/system/pythonhelloworld.service
+[Unit]
+Description=Simple python web service
+After=network.target
+
+[Service]
+Type=simple
+User=awsexercise
+WorkingDirectory=/opt/pyweb/
+ExecStart=/opt/pyweb/web.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# install password storage for python
+pwfile="/opt/pyweb/pypassword.py"
+echo "
+dbhost = '$host'
+dbuser = '$user'
+dbpassword = '$password'
+dbname = '$db'
+" > "$pwfile"
+chown awsexercise:awsexercise "$pwfile"
+chmod 600 "$pwfile"
+
+# generate database content file
+mkdir -p /opt/mysql
+cat <<'EOF' > /opt/mysql/content.sql
+--  Sample simple database
+
+DROP DATABASE IF EXISTS exercise;
+CREATE DATABASE IF NOT EXISTS exercise;
+USE exercise;
+
+SELECT 'CREATING DATABASE STRUCTURE' as 'INFO';
+
+DROP TABLE IF EXISTS health,
+                     content;
+
+/*!50503 set default_storage_engine = InnoDB */;
+/*!50503 select CONCAT('storage engine: ', @@default_storage_engine) as INFO */;
+
+CREATE TABLE health (
+    health_check  VARCHAR(16)     NOT NULL,
+    PRIMARY KEY (health_check)
+);
+
+CREATE TABLE content (
+    helloworld   VARCHAR(40)     NOT NULL,
+    PRIMARY KEY (helloworld)
+);
+
+flush /*!50503 binary */ logs;
+
+SELECT 'LOADING health' as 'INFO';
+INSERT INTO `health` VALUES ('db_connection_ok');
+SELECT 'LOADING content' as 'INFO';
+INSERT INTO `content` VALUES ('Hello World!');
+EOF
+
+# create the database content if it is not present
+checkiffirst=`mysql -u "$user" -h "$host" -p"$password" -s -N -e "show databases"`
+
+# Checks if the health table exists in the database
+table_exists=$(printf 'SHOW TABLES LIKE "%s"' "health")
+if ! [[ $(mysql -u "$user" -h "$host" -p"$password" -e "$table_exists" $db) ]]; then
+  mysql -u "$user" -h "$host" -p"$password" < /opt/mysql/content.sql
+fi
+
+if ! [[ $checkiffirst == *"exercise"* ]]; then
+    # echo "There is reason to believe that I'm the first of my kind"
+    mysql -u "$user" -h "$host" -p"$password" < /opt/mysql/content.sql
+fi
+
+# enable and start python service
+systemctl enable pythonhelloworld.service
+systemctl start pythonhelloworld.service
