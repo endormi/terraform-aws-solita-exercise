@@ -1,7 +1,7 @@
 # Creates a random password for db
 resource "random_password" "exercise_password" {
-  length = 18
-  special = true
+  length           = 18
+  special          = true
   override_special = "_%@"
 }
 
@@ -29,8 +29,8 @@ resource "aws_db_instance" "rds_db" {
   multi_az               = true
 
   tags = {
-    Name        = "solita_exercise_db"
-    Project     = "solita_exercise_flask_application"
-    Encrypted   = true
+    Name      = "solita_exercise_db"
+    Project   = "solita_exercise_flask_application"
+    Encrypted = true
   }
 }

@@ -42,10 +42,10 @@ resource "aws_lb_target_group" "exercise_alb_tg" {
   vpc_id   = aws_vpc.vpc.id
 
   health_check {
-    path    = "/health"
-    port    = 3000
-    matcher = "200"
-    interval = 10
+    path              = "/health"
+    port              = 3000
+    matcher           = "200"
+    interval          = 10
     healthy_threshold = 2
   }
 

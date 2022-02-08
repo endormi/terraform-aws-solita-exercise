@@ -17,7 +17,8 @@ terraform {
 */
 
 /*
-# Run this code first with backend then after run both
+# Run this code first with backend commented out
+# then run both together
 
 resource "aws_kms_key" "bucket_key" {
   description             = "Encrypts bucket objects"
