@@ -99,7 +99,7 @@ terraform destroy
 
 **Important notes**:
 
-> Since this task's environment is not meant to be left on. There are things I would've done differently if it was meant to be. I also have other things I would add as well.
+> Since this task's environment is not meant to be left on. There are things I would've done differently if it was meant to be. I also have other things I would've added as well.
 
 - I would create a new user for the database, grant permission to write and read and use the new user to run the script. Using the database as root is a bad.
 - I would use a secret manager for the database credentials if the database was going to be kept up and not destroyed. Adding secret manager is more of a manual process.
