@@ -109,3 +109,4 @@ terraform destroy
 - I would use HTTPS, but in this case I used HTTP, because I'd need a certificate.
 - I could use a NAT Gateway and private subnets instead of creating public subnets for ec2 instances. That would be costly though.
 - I would use a API Gateway if I had more regions to use.
+- I would add more tags (if needed [depends on certain factors]) such as. department, environment, owner, version, cost allocation tags etc.
