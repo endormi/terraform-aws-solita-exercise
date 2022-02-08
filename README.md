@@ -110,3 +110,5 @@ terraform destroy
 - I could use a NAT Gateway and private subnets instead of creating public subnets for ec2 instances. That would be costly though.
 - I would use a API Gateway if I had more regions to use.
 - I would add more tags (if needed [depends on certain factors]) such as. department, environment, owner, version, cost allocation tags etc.
+
+Optional: `state.tf` creates a new S3 bucket and adds `terraform.tfstate`. If you already have a bucket, you can just skip the bucket creation.
